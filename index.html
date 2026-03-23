@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Castle Clash — ATK Speed Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #141720;
+    --card:     #1a1e2c;
+    --border:   #2a2f42;
+    --gold:     #c89b3c;
+    --gold-lt:  #e8c56a;
+    --amber:    #f0a030;
+    --text:     #d4cfc4;
+    --muted:    #7a7a8c;
+    --danger:   #e05050;
+    --green:    #4caf82;
+    --blue:     #4a8cf0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ─── Background texture ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -10%, rgba(200,155,60,.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 100%, rgba(74,140,240,.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* ─── Header ─── */
+  header {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  header .eyebrow {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(26px, 5vw, 42px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold-lt), var(--amber));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: .04em;
+    line-height: 1.1;
+  }
+  header p {
+    color: var(--muted);
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  /* ─── Formula box ─── */
+  .formula-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .formula-box code {
+    display: block;
+    font-family: 'Courier New', monospace;
+    color: var(--gold-lt);
+    font-size: 13px;
+    margin: 6px 0;
+  }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 18px;
+  }
+  .card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title svg { opacity: .8; }
+
+  /* ─── Form controls ─── */
+  .row {
+    display: grid;
+    gap: 14px;
+  }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  @media (max-width: 600px) {
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  label span { color: var(--gold); font-size: 10px; }
+
+  input[type="number"],
+  select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 9px 12px;
+    transition: border-color .15s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  input[type="number"]:focus,
+  select:focus {
+    border-color: var(--gold);
+  }
+  select option { background: var(--card); }
+
+  /* preset chips */
+  .presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .chip {
+    cursor: pointer;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    transition: all .15s;
+    background: transparent;
+  }
+  .chip:hover, .chip.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(200,155,60,.08);
+  }
+
+  /* range slider */
+  .slider-wrap {
+    display: flex; align-items: center; gap: 12px;
+  }
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none; appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    transition: transform .1s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .range-val {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold-lt);
+    min-width: 24px;
+    text-align: center;
+  }
+
+  /* note tag */
+  .note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ─── Extra buffs ─── */
+  .buff-list { display: flex; flex-direction: column; gap: 8px; }
+  .buff-row {
+    display: grid;
+    grid-template-columns: 1fr 100px 32px;
+    gap: 8px;
+    align-items: center;
+  }
+  .buff-row input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .buff-row input[type="text"]:focus { border-color: var(--gold); }
+  .buff-row .pct-input {
+    position: relative;
+  }
+  .buff-row .pct-input input {
+    padding-right: 26px;
+  }
+  .buff-row .pct-input::after {
+    content: '%';
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 13px; pointer-events: none;
+  }
+  .btn-remove {
+    width: 32px; height: 32px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .btn-remove:hover { background: rgba(224,80,80,.1); border-color: var(--danger); }
+
+  .btn-add {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    transition: all .15s;
+    width: 100%;
+  }
+  .btn-add:hover { border-color: var(--gold); color: var(--gold); background: rgba(200,155,60,.04); }
+
+  /* ─── Quick presets for extra buffs ─── */
+  .buff-presets {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  /* ─── Result ─── */
+  .result-card {
+    background: linear-gradient(135deg, rgba(200,155,60,.1), rgba(200,155,60,.03));
+    border: 1px solid rgba(200,155,60,.4);
+    border-radius: 14px;
+    padding: 30px 28px;
+    margin-top: 8px;
+    text-align: center;
+  }
+  .result-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: .25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .result-ms {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(52px, 12vw, 80px);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--gold-lt), var(--amber));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .result-unit {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; color: var(--muted); margin-top: 4px;
+  }
+  .result-aps {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .result-aps strong { color: var(--amber); }
+
+  /* ─── Breakdown ─── */
+  .breakdown {
+    margin-top: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    text-align: left;
+  }
+  .breakdown-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: .15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .bd-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    gap: 12px;
+  }
+  .bd-row:last-child { border-bottom: none; }
+  .bd-label { color: var(--muted); }
+  .bd-val { color: var(--text); font-weight: 600; font-family: 'Rajdhani', sans-serif; }
+  .bd-val.gold { color: var(--gold-lt); }
+  .bd-val.green { color: var(--green); }
+
+  .cap-badge {
+    display: inline-block;
+    background: rgba(240,160,48,.15);
+    color: var(--amber);
+    border: 1px solid rgba(240,160,48,.3);
+    border-radius: 4px;
+    font-size: 10px;
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 600;
+    letter-spacing: .05em;
+  }
+
+  /* ─── Divider ─── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  /* ─── Tooltip hint ─── */
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(255,255,255,.03);
+    border-left: 2px solid var(--blue);
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ─── Buff pct reference ─── */
+  .ref-toggle {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+    cursor: pointer; user-select: none;
+    margin-top: 12px;
+  }
+  .ref-toggle:hover { color: var(--gold); }
+  .ref-table {
+    display: none;
+    margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .ref-table.open { display: table; }
+  .ref-table th, .ref-table td {
+    padding: 5px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .ref-table th { color: var(--gold); font-weight: 600; }
+  .ref-table td { color: var(--text); }
+  .ref-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="eyebrow">Castle Clash</div>
+    <h1>ATK Speed Calculator</h1>
+    <p>Compute your hero's operating attack speed after all buffs & talents</p>
+  </header>
+
+  <!-- Formula -->
+  <div class="formula-box">
+    <strong style="color:var(--text)">Formula</strong> — all buffs are multiplicative divisors:
+    <code>OperatingAS = CEILING( BaseAS ÷ [(1 + Talent/Crest) × (1 + PD) × …] ÷ 200 ) × 200</code>
+    Minimum cap: <strong style="color:var(--amber)">200 ms</strong> &nbsp;·&nbsp;
+    Talent &amp; Crest (Berserk): only the <strong style="color:var(--gold-lt)">highest</strong> applies
+  </div>
+
+  <!-- Base speed -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Base Attack Speed
+    </div>
+    <label>Enter base ATK SPD (ms)</label>
+    <input type="number" id="baseAS" min="200" max="5000" step="100" value="1000">
+    <div class="presets">
+      <span class="chip" onclick="setBase(600)">600 ms</span>
+      <span class="chip" onclick="setBase(800)">800 ms</span>
+      <span class="chip active" onclick="setBase(1000)">1000 ms</span>
+      <span class="chip" onclick="setBase(1200)">1200 ms</span>
+      <span class="chip" onclick="setBase(1500)">1500 ms</span>
+      <span class="chip" onclick="setBase(2000)">2000 ms</span>
+    </div>
+  </div>
+
+  <!-- Talent / Crest -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Berserk Talent &amp; Crest
+    </div>
+    <div class="row row-2">
+      <div>
+        <label>Talent Level <span>(only highest applies)</span></label>
+        <select id="berserkTalent" onchange="calc()">
+          <option value="0">None</option>
+          <option value="10">1/8 — 10%</option>
+          <option value="15">2/8 — 15%</option>
+          <option value="20">3/8 — 20%</option>
+          <option value="25">4/8 — 25%</option>
+          <option value="30">5/8 — 30%</option>
+          <option value="40">6/8 — 40%</option>
+          <option value="50">7/8 — 50%</option>
+          <option value="70">8/8 — 70%</option>
+        </select>
+      </div>
+      <div>
+        <label>Crest Level <span>(only highest applies)</span></label>
+        <select id="berserkCrest" onchange="calc()">
+          <option value="0">None</option>
+          <option value="10">1/5 — 10%</option>
+          <option value="15">2/5 — 15%</option>
+          <option value="20">3/5 — 20%</option>
+          <option value="25">4/5 — 25%</option>
+          <option value="30">5/5 — 30%</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint">Berserk talent and crest <strong>do not stack</strong>. The game uses whichever is higher. Both are shown here so you can compare.</div>
+  </div>
+
+  <!-- Pumpkin Duke -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Pumpkin Duke — Celebrate Skill
+    </div>
+    <div class="row row-2">
+      <div>
+        <label>Skill Level</label>
+        <select id="pdSkill" onchange="calc()">
+          <option value="0">None (0)</option>
+          <option value="5">1/10 — 5% per stack</option>
+          <option value="8">2/10 — 8% per stack</option>
+          <option value="10">3/10 — 10% per stack</option>
+          <option value="15">4/10 — 15% per stack</option>
+          <option value="20">5/10 — 20% per stack</option>
+          <option value="25">6/10 — 25% per stack</option>
+          <option value="30">7/10 — 30% per stack</option>
+          <option value="35">8/10 — 35% per stack</option>
+          <option value="40">9/10 — 40% per stack</option>
+          <option value="45">10/10 — 45% per stack</option>
+        </select>
+      </div>
+      <div>
+        <label>Active Stacks</label>
+        <div class="slider-wrap">
+          <input type="range" id="pdStacks" min="0" max="8" step="1" value="0" oninput="document.getElementById('pdStacksVal').textContent=this.value; calc()">
+          <span class="range-val" id="pdStacksVal">0</span>
+        </div>
+        <div class="note">Maximum: 8 stacks</div>
+      </div>
+    </div>
+    <div class="hint">Each Celebrate proc adds one stack. Multiple PDs stack independently.</div>
+  </div>
+
+  <!-- Extra buffs -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Additional Buffs — Gear, Pet, Artifact…
+    </div>
+
+    <!-- Quick-add presets -->
+    <div class="buff-presets">
+      <span class="chip" onclick="addBuff('Blitz Scroll (5)', 60)">+ Blitz Scroll lv5</span>
+      <span class="chip" onclick="addBuff('Frenzy Bear Pet', 25)">+ Frenzy Bear Pet</span>
+      <span class="chip" onclick="addBuff('Gear Enchant (Berserk lv5)', 30)">+ Gear Enchant Berserk 5</span>
+      <span class="chip" onclick="addBuff('Gear Trait ATK SPD', 10)">+ Gear Trait ATK SPD</span>
+      <span class="chip" onclick="addBuff('Custom Buff', 20)">+ Custom buff</span>
+    </div>
+
+    <div id="buffList" class="buff-list"></div>
+    <button class="btn-add" onclick="addBuff('', 20)">＋ Add buff</button>
+    <div class="note">Each extra buff is applied as a separate multiplicative divisor.</div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card">
+    <div class="result-label">Operating Attack Speed</div>
+    <div class="result-ms" id="resultMS">1000</div>
+    <div class="result-unit">milliseconds</div>
+    <div class="result-aps" id="resultAPS">= <strong>1.00</strong> attacks per second</div>
+
+    <div class="breakdown" id="breakdown">
+      <div class="breakdown-title">Calculation Breakdown</div>
+      <div id="bdRows"></div>
+    </div>
+  </div>
+
+  <!-- Reference table toggle -->
+  <div style="margin-top:24px">
+    <div class="ref-toggle" onclick="toggleRef()">
+      <svg id="refArrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      Show Berserk % reference table
+    </div>
+    <table class="ref-table" id="refTable">
+      <thead><tr><th>Talent/Crest Level</th><th>ATK SPD buff</th></tr></thead>
+      <tbody>
+        <tr><td>Berserk 1/8</td><td>10%</td></tr>
+        <tr><td>Berserk 2/8</td><td>15%</td></tr>
+        <tr><td>Berserk 3/8</td><td>20%</td></tr>
+        <tr><td>Berserk 4/8</td><td>25%</td></tr>
+        <tr><td>Berserk 5/8</td><td>30%</td></tr>
+        <tr><td>Berserk 6/8</td><td>40%</td></tr>
+        <tr><td>Berserk 7/8</td><td>50%</td></tr>
+        <tr><td>Berserk 8/8</td><td>70%</td></tr>
+        <tr><td style="padding-top:10px;color:var(--muted)">Crest 1/5</td><td>10%</td></tr>
+        <tr><td style="color:var(--muted)">Crest 2/5</td><td>15%</td></tr>
+        <tr><td style="color:var(--muted)">Crest 3/5</td><td>20%</td></tr>
+        <tr><td style="color:var(--muted)">Crest 4/5</td><td>25%</td></tr>
+        <tr><td style="color:var(--muted)">Crest 5/5</td><td>30%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────
+let buffs = []; // [{id, name, pct}]
+let buffCounter = 0;
+
+// ─── Helpers ─────────────────────────────────────────────────────
+function ceilTo200(x) {
+  return Math.ceil(x / 200) * 200;
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function setBase(v) {
+  document.getElementById('baseAS').value = v;
+  document.querySelectorAll('.chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.trim().startsWith(v + ' ms'));
+  });
+  calc();
+}
+
+// ─── Buffs CRUD ──────────────────────────────────────────────────
+function addBuff(name, pct) {
+  const id = ++buffCounter;
+  buffs.push({ id, name, pct });
+  renderBuffs();
+  calc();
+}
+
+function removeBuff(id) {
+  buffs = buffs.filter(b => b.id !== id);
+  renderBuffs();
+  calc();
+}
+
+function renderBuffs() {
+  const list = document.getElementById('buffList');
+  list.innerHTML = buffs.map(b => `
+    <div class="buff-row" id="buffRow-${b.id}">
+      <input type="text" placeholder="Buff name (e.g. Blitz Scroll)" value="${b.name}"
+        oninput="updateBuff(${b.id},'name',this.value)">
+      <div class="pct-input">
+        <input type="number" min="0" max="500" step="1" value="${b.pct}"
+          oninput="updateBuff(${b.id},'pct',this.value); calc()">
+      </div>
+      <button class="btn-remove" onclick="removeBuff(${b.id})">×</button>
+    </div>
+  `).join('');
+}
+
+function updateBuff(id, field, val) {
+  const b = buffs.find(x => x.id === id);
+  if (!b) return;
+  b[field] = field === 'pct' ? (parseFloat(val) || 0) : val;
+  calc();
+}
+
+// ─── Main calculation ─────────────────────────────────────────────
+function calc() {
+  const base   = getVal('baseAS');
+  const talPct = getVal('berserkTalent');
+  const cresPct= getVal('berserkCrest');
+  const pdPct  = getVal('pdSkill');
+  const stacks = parseInt(document.getElementById('pdStacks').value) || 0;
+
+  // Talent/Crest: take highest
+  const tcPct  = Math.max(talPct, cresPct);
+
+  // Build multiplier product
+  let divisor = 1;
+  const bdParts = [];
+
+  // 1. Talent/Crest
+  if (tcPct > 0) {
+    divisor *= (1 + tcPct / 100);
+    const src = (talPct >= cresPct && talPct > 0)
+      ? `Berserk Talent (${talPct}%)`
+      : `Berserk Crest (${cresPct}%)`;
+    bdParts.push({ label: src, factor: 1 + tcPct / 100, pct: tcPct });
+  }
+
+  // 2. PD stacks (each as its own multiplier)
+  if (pdPct > 0 && stacks > 0) {
+    for (let i = 0; i < stacks; i++) {
+      divisor *= (1 + pdPct / 100);
+    }
+    bdParts.push({
+      label: `PD Celebrate ×${stacks} stacks (@${pdPct}% each)`,
+      factor: Math.pow(1 + pdPct / 100, stacks),
+      pct: null
+    });
+  }
+
+  // 3. Extra buffs
+  buffs.forEach(b => {
+    if (b.pct > 0) {
+      divisor *= (1 + b.pct / 100);
+      bdParts.push({ label: b.name || 'Custom buff', factor: 1 + b.pct / 100, pct: b.pct });
+    }
+  });
+
+  const raw    = base / divisor;
+  const result = Math.max(200, ceilTo200(raw));
+  const capped = result === 200 && raw < 200;
+
+  // ─── Update result display ───
+  document.getElementById('resultMS').textContent = result;
+  const aps = (1000 / result).toFixed(2);
+  document.getElementById('resultAPS').innerHTML =
+    `= <strong>${aps}</strong> attacks per second`;
+
+  // ─── Breakdown ───
+  const rows = [];
+
+  rows.push({ label: 'Base ATK Speed', val: `${base} ms`, cls: '' });
+
+  if (bdParts.length === 0) {
+    rows.push({ label: 'Total divisor', val: '× 1.00 (no buffs)', cls: '' });
+  } else {
+    bdParts.forEach(p => {
+      const tag = p.pct !== null ? `+${p.pct}%` : `(each +${pdPct}%)`;
+      rows.push({
+        label: p.label,
+        val: `÷ ${p.factor.toFixed(4)}`,
+        cls: 'gold'
+      });
+    });
+    rows.push({
+      label: 'Combined divisor',
+      val: `÷ ${divisor.toFixed(4)}`,
+      cls: 'green'
+    });
+  }
+
+  rows.push({ label: 'Raw value', val: `${raw.toFixed(1)} ms`, cls: '' });
+  rows.push({
+    label: 'Rounded (ceiling ÷ 200)',
+    val: `${result} ms${capped ? '<span class="cap-badge">MIN CAP</span>' : ''}`,
+    cls: 'gold'
+  });
+
+  document.getElementById('bdRows').innerHTML = rows.map(r =>
+    `<div class="bd-row">
+      <span class="bd-label">${r.label}</span>
+      <span class="bd-val ${r.cls}">${r.val}</span>
+    </div>`
+  ).join('');
+}
+
+// ─── Reference table toggle ───────────────────────────────────────
+function toggleRef() {
+  const tbl = document.getElementById('refTable');
+  const arr = document.getElementById('refArrow');
+  tbl.classList.toggle('open');
+  arr.style.transform = tbl.classList.contains('open') ? 'rotate(90deg)' : '';
+}
+
+// ─── Init ─────────────────────────────────────────────────────────
+document.getElementById('baseAS').addEventListener('input', () => {
+  document.querySelectorAll('.presets .chip').forEach(c => c.classList.remove('active'));
+  calc();
+});
+document.getElementById('berserkTalent').addEventListener('change', calc);
+document.getElementById('berserkCrest').addEventListener('change', calc);
+document.getElementById('pdSkill').addEventListener('change', calc);
+
+calc();
+</script>
+</body>
+</html>
