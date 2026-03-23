@@ -392,6 +392,13 @@
   }
 
   /* ─── Buff pct reference ─── */
+  /* ─── Pet checkboxes ─── */
+  .card label input[type="checkbox"] {
+    accent-color: var(--gold);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
   .ref-toggle {
     display: flex; align-items: center; gap: 6px;
     font-size: 12px; color: var(--muted);
@@ -429,9 +436,9 @@
   <!-- Formula -->
   <div class="formula-box">
     <strong style="color:var(--text)">Formula</strong> — all buffs are multiplicative divisors:
-    <code>OperatingAS = CEILING( BaseAS ÷ [(1 + Talent/Crest) × (1 + PD) × …] ÷ 200 ) × 200</code>
+    <code>OperatingAS = CEILING( BaseAS ÷ [(1 + Talent) × (1 + Insignia) × (1 + Enchant) × …] ÷ 200 ) × 200</code>
     Minimum cap: <strong style="color:var(--amber)">200 ms</strong> &nbsp;·&nbsp;
-    Talent &amp; Crest (Berserk): only the <strong style="color:var(--gold-lt)">highest</strong> applies
+    Each buff is an independent <strong style="color:var(--gold-lt)">multiplicative</strong> divisor
   </div>
 
   <!-- Base speed -->
@@ -443,84 +450,160 @@
     <label>Enter base ATK SPD (ms)</label>
     <input type="number" id="baseAS" min="200" max="5000" step="100" value="1000">
     <div class="presets">
-      <span class="chip" onclick="setBase(600)">600 ms</span>
-      <span class="chip" onclick="setBase(800)">800 ms</span>
       <span class="chip active" onclick="setBase(1000)">1000 ms</span>
-      <span class="chip" onclick="setBase(1200)">1200 ms</span>
+      <span class="chip" onclick="setBase(1200)">1200 ms</span>      
+      <span class="chip" onclick="setBase(1400)">1400 ms</span>
       <span class="chip" onclick="setBase(1500)">1500 ms</span>
       <span class="chip" onclick="setBase(2000)">2000 ms</span>
     </div>
   </div>
 
-  <!-- Talent / Crest -->
+  <!-- Berserk Talent & Wraith Mark Insignia -->
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      Berserk Talent &amp; Crest
+      Berserk Talent &amp; Wraith Mark Insignia
     </div>
     <div class="row row-2">
       <div>
-        <label>Talent Level <span>(only highest applies)</span></label>
+        <label>Berserk Talent Level</label>
         <select id="berserkTalent" onchange="calc()">
           <option value="0">None</option>
-          <option value="10">1/8 — 10%</option>
-          <option value="15">2/8 — 15%</option>
-          <option value="20">3/8 — 20%</option>
-          <option value="25">4/8 — 25%</option>
-          <option value="30">5/8 — 30%</option>
-          <option value="40">6/8 — 40%</option>
-          <option value="50">7/8 — 50%</option>
-          <option value="70">8/8 — 70%</option>
+          <option value="10">1/10 — 10%</option>
+          <option value="15">2/10 — 15%</option>
+          <option value="20">3/10 — 20%</option>
+          <option value="25">4/10 — 25%</option>
+          <option value="30">5/10 — 30%</option>
+          <option value="40">6/10 — 40%</option>
+          <option value="50">7/10 — 50%</option>
+          <option value="70">8/10 — 70%</option>
+          <option value="90">9/10 — 90%</option>
+          <option value="120">10/10 — 120%</option>
         </select>
       </div>
       <div>
-        <label>Crest Level <span>(only highest applies)</span></label>
-        <select id="berserkCrest" onchange="calc()">
+        <label>Wraith Mark Insignia</label>
+        <select id="wraithMark" onchange="calc()">
           <option value="0">None</option>
-          <option value="10">1/5 — 10%</option>
-          <option value="15">2/5 — 15%</option>
-          <option value="20">3/5 — 20%</option>
-          <option value="25">4/5 — 25%</option>
-          <option value="30">5/5 — 30%</option>
+          <option value="5">1/10 — 5%</option>
+          <option value="10">2/10 — 10%</option>
+          <option value="15">3/10 — 15%</option>
+          <option value="20">4/10 — 20%</option>
+          <option value="25">5/10 — 25%</option>
+          <option value="30">6/10 — 30%</option>
+          <option value="35">7/10 — 35%</option>
+          <option value="40">8/10 — 40%</option>
+          <option value="45">9/10 — 45%</option>
+          <option value="50">10/10 — 50%</option>
         </select>
       </div>
     </div>
-    <div class="hint">Berserk talent and crest <strong>do not stack</strong>. The game uses whichever is higher. Both are shown here so you can compare.</div>
   </div>
 
-  <!-- Pumpkin Duke -->
+  <!-- Enchantment — Unbridled Fury -->
   <div class="card">
     <div class="card-title">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      Pumpkin Duke — Celebrate Skill
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Enchantment — Unbridled Fury
+    </div>
+    <div>
+      <label>Enchantment Level</label>
+      <select id="unbridledFury" onchange="calc()">
+        <option value="0">None</option>
+        <option value="10">1/10 — 10%</option>
+        <option value="14">2/10 — 14%</option>
+        <option value="19">3/10 — 19%</option>
+        <option value="24">4/10 — 24%</option>
+        <option value="30">5/10 — 30%</option>
+        <option value="40">6/10 — 40%</option>
+        <option value="50">7/10 — 50%</option>
+        <option value="60">8/10 — 60%</option>
+        <option value="70">9/10 — 70%</option>
+        <option value="80">10/10 — 80%</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Gear Endowment -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      Gear Endowment
+    </div>
+    <div class="row row-3">
+      <div>
+        <label>Helmet (%)</label>
+        <input type="number" id="gearHelmet" min="0" max="8" step="0.1" value="0" oninput="calc()">
+      </div>
+      <div>
+        <label>Armor (%)</label>
+        <input type="number" id="gearArmor" min="0" max="8" step="0.1" value="0" oninput="calc()">
+      </div>
+      <div>
+        <label>Weapons (%)</label>
+        <input type="number" id="gearWeapons" min="0" max="8" step="0.1" value="0" oninput="calc()">
+      </div>
+      <div>
+        <label>Boots (%)</label>
+        <input type="number" id="gearBoots" min="0" max="8" step="0.1" value="0" oninput="calc()">
+      </div>
+      <div>
+        <label>Necklace (%)</label>
+        <input type="number" id="gearNecklace" min="0" max="8" step="0.1" value="0" oninput="calc()">
+      </div>
+      <div>
+        <label>Ring (%)</label>
+        <input type="number" id="gearRing" min="0" max="8" step="0.1" value="0" oninput="calc()">
+      </div>
+    </div>
+    <div class="note">Each gear slot can endow 0–8% ATK SPD (step 0.1%). All gear bonuses are summed into one multiplicative divisor.</div>
+  </div>
+
+  <!-- Pet Flair -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+      Pet Flair — Pursuit Strike
+    </div>
+    <div>
+      <label>Flair Level</label>
+      <select id="flairLevel" onchange="calc()">
+        <option value="0">None</option>
+        <option value="20">1/10 — 20%</option>
+        <option value="22">2/10 — 22%</option>
+        <option value="24">3/10 — 24%</option>
+        <option value="26">4/10 — 26%</option>
+        <option value="28">5/10 — 28%</option>
+        <option value="30">6/10 — 30%</option>
+        <option value="32">7/10 — 32%</option>
+        <option value="34">8/10 — 34%</option>
+        <option value="36">9/10 — 36%</option>
+        <option value="40">10/10 — 40%</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Pets -->
+  <div class="card">
+    <div class="card-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 6.006-4 7 .08.703 1.725 1.722 3.656 1 1.261-.472 1.96-1.45 2.344-2.5M14 5.172C14 3.782 15.577 2.679 17.5 3c2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.96-1.45-2.344-2.5"/><path d="M8 14v.5M16 14v.5"/><path d="M11.25 16.25h1.5L12 17l-.75-.75z"/><path d="M4.42 11.247A13.152 13.152 0 004 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 00-.493-3.309"/></svg>
+      Pets
     </div>
     <div class="row row-2">
       <div>
-        <label>Skill Level</label>
-        <select id="pdSkill" onchange="calc()">
-          <option value="0">None (0)</option>
-          <option value="5">1/10 — 5% per stack</option>
-          <option value="8">2/10 — 8% per stack</option>
-          <option value="10">3/10 — 10% per stack</option>
-          <option value="15">4/10 — 15% per stack</option>
-          <option value="20">5/10 — 20% per stack</option>
-          <option value="25">6/10 — 25% per stack</option>
-          <option value="30">7/10 — 30% per stack</option>
-          <option value="35">8/10 — 35% per stack</option>
-          <option value="40">9/10 — 40% per stack</option>
-          <option value="45">10/10 — 45% per stack</option>
-        </select>
+        <label><input type="checkbox" id="petMermaid" onchange="calc()"> Marine Mermaid <span>(30%)</span></label>
       </div>
       <div>
-        <label>Active Stacks</label>
-        <div class="slider-wrap">
-          <input type="range" id="pdStacks" min="0" max="8" step="1" value="0" oninput="document.getElementById('pdStacksVal').textContent=this.value; calc()">
-          <span class="range-val" id="pdStacksVal">0</span>
-        </div>
-        <div class="note">Maximum: 8 stacks</div>
+        <label><input type="checkbox" id="petMermaidMutant" onchange="calc()"> Mutant Mermaid <span>(30%)</span></label>
+      </div>
+      <div>
+        <label><input type="checkbox" id="petDragon" onchange="calc()"> Dragon <span>(25%)</span></label>
+      </div>
+      <div>
+        <label><input type="checkbox" id="petDragonMutant" onchange="calc()"> Mutant Dragon <span>(25%)</span></label>
       </div>
     </div>
-    <div class="hint">Each Celebrate proc adds one stack. Multiple PDs stack independently.</div>
+    <div class="note">Each activated pet is an independent multiplicative divisor.</div>
   </div>
 
   <!-- Extra buffs -->
@@ -564,21 +647,18 @@
       Show Berserk % reference table
     </div>
     <table class="ref-table" id="refTable">
-      <thead><tr><th>Talent/Crest Level</th><th>ATK SPD buff</th></tr></thead>
+      <thead><tr><th>Talent Level</th><th>ATK SPD buff</th></tr></thead>
       <tbody>
-        <tr><td>Berserk 1/8</td><td>10%</td></tr>
-        <tr><td>Berserk 2/8</td><td>15%</td></tr>
-        <tr><td>Berserk 3/8</td><td>20%</td></tr>
-        <tr><td>Berserk 4/8</td><td>25%</td></tr>
-        <tr><td>Berserk 5/8</td><td>30%</td></tr>
-        <tr><td>Berserk 6/8</td><td>40%</td></tr>
-        <tr><td>Berserk 7/8</td><td>50%</td></tr>
-        <tr><td>Berserk 8/8</td><td>70%</td></tr>
-        <tr><td style="padding-top:10px;color:var(--muted)">Crest 1/5</td><td>10%</td></tr>
-        <tr><td style="color:var(--muted)">Crest 2/5</td><td>15%</td></tr>
-        <tr><td style="color:var(--muted)">Crest 3/5</td><td>20%</td></tr>
-        <tr><td style="color:var(--muted)">Crest 4/5</td><td>25%</td></tr>
-        <tr><td style="color:var(--muted)">Crest 5/5</td><td>30%</td></tr>
+        <tr><td>Berserk 1/10</td><td>10%</td></tr>
+        <tr><td>Berserk 2/10</td><td>15%</td></tr>
+        <tr><td>Berserk 3/10</td><td>20%</td></tr>
+        <tr><td>Berserk 4/10</td><td>25%</td></tr>
+        <tr><td>Berserk 5/10</td><td>30%</td></tr>
+        <tr><td>Berserk 6/10</td><td>40%</td></tr>
+        <tr><td>Berserk 7/10</td><td>50%</td></tr>
+        <tr><td>Berserk 8/10</td><td>70%</td></tr>
+        <tr><td>Berserk 9/10</td><td>90%</td></tr>
+        <tr><td>Berserk 10/10</td><td>120%</td></tr>
       </tbody>
     </table>
   </div>
@@ -645,39 +725,61 @@ function updateBuff(id, field, val) {
 function calc() {
   const base   = getVal('baseAS');
   const talPct = getVal('berserkTalent');
-  const cresPct= getVal('berserkCrest');
-  const pdPct  = getVal('pdSkill');
-  const stacks = parseInt(document.getElementById('pdStacks').value) || 0;
-
-  // Talent/Crest: take highest
-  const tcPct  = Math.max(talPct, cresPct);
 
   // Build multiplier product
   let divisor = 1;
   const bdParts = [];
 
-  // 1. Talent/Crest
-  if (tcPct > 0) {
-    divisor *= (1 + tcPct / 100);
-    const src = (talPct >= cresPct && talPct > 0)
-      ? `Berserk Talent (${talPct}%)`
-      : `Berserk Crest (${cresPct}%)`;
-    bdParts.push({ label: src, factor: 1 + tcPct / 100, pct: tcPct });
+  // 1. Berserk Talent
+  if (talPct > 0) {
+    divisor *= (1 + talPct / 100);
+    bdParts.push({ label: `Berserk Talent (${talPct}%)`, factor: 1 + talPct / 100, pct: talPct });
   }
 
-  // 2. PD stacks (each as its own multiplier)
-  if (pdPct > 0 && stacks > 0) {
-    for (let i = 0; i < stacks; i++) {
-      divisor *= (1 + pdPct / 100);
+  // 2. Wraith Mark Insignia
+  const wraithPct = getVal('wraithMark');
+  if (wraithPct > 0) {
+    divisor *= (1 + wraithPct / 100);
+    bdParts.push({ label: `Wraith Mark Insignia (${wraithPct}%)`, factor: 1 + wraithPct / 100, pct: wraithPct });
+  }
+
+  // 3. Unbridled Fury Enchantment
+  const furyPct = getVal('unbridledFury');
+  if (furyPct > 0) {
+    divisor *= (1 + furyPct / 100);
+    bdParts.push({ label: `Unbridled Fury (${furyPct}%)`, factor: 1 + furyPct / 100, pct: furyPct });
+  }
+
+  // 4. Gear Endowment (sum all 6 slots into one divisor)
+  const gearSlots = ['gearHelmet','gearArmor','gearWeapons','gearBoots','gearNecklace','gearRing'];
+  const gearTotal = gearSlots.reduce((s, id) => s + getVal(id), 0);
+  if (gearTotal > 0) {
+    divisor *= (1 + gearTotal / 100);
+    bdParts.push({ label: `Gear Endowment (${gearTotal.toFixed(1)}%)`, factor: 1 + gearTotal / 100, pct: gearTotal });
+  }
+
+  // 4. Pet Flair — Pursuit Strike
+  const flairPct = getVal('flairLevel');
+  if (flairPct > 0) {
+    divisor *= (1 + flairPct / 100);
+    bdParts.push({ label: `Flair Pursuit Strike (${flairPct}%)`, factor: 1 + flairPct / 100, pct: flairPct });
+  }
+
+  // 5. Pets
+  const pets = [
+    { id: 'petMermaid',        label: 'Marine Mermaid',        pct: 30 },
+    { id: 'petMermaidMutant',  label: 'Mutant Marine Mermaid', pct: 30 },
+    { id: 'petDragon',        label: 'Dragon',                pct: 25 },
+    { id: 'petDragonMutant',  label: 'Mutant Dragon',         pct: 25 },
+  ];
+  pets.forEach(p => {
+    if (document.getElementById(p.id).checked) {
+      divisor *= (1 + p.pct / 100);
+      bdParts.push({ label: `${p.label} (${p.pct}%)`, factor: 1 + p.pct / 100, pct: p.pct });
     }
-    bdParts.push({
-      label: `PD Celebrate ×${stacks} stacks (@${pdPct}% each)`,
-      factor: Math.pow(1 + pdPct / 100, stacks),
-      pct: null
-    });
-  }
+  });
 
-  // 3. Extra buffs
+  // 7. Extra buffs
   buffs.forEach(b => {
     if (b.pct > 0) {
       divisor *= (1 + b.pct / 100);
@@ -704,7 +806,7 @@ function calc() {
     rows.push({ label: 'Total divisor', val: '× 1.00 (no buffs)', cls: '' });
   } else {
     bdParts.forEach(p => {
-      const tag = p.pct !== null ? `+${p.pct}%` : `(each +${pdPct}%)`;
+      const tag = p.pct !== null ? `+${p.pct}%` : '';
       rows.push({
         label: p.label,
         val: `÷ ${p.factor.toFixed(4)}`,
@@ -747,8 +849,6 @@ document.getElementById('baseAS').addEventListener('input', () => {
   calc();
 });
 document.getElementById('berserkTalent').addEventListener('change', calc);
-document.getElementById('berserkCrest').addEventListener('change', calc);
-document.getElementById('pdSkill').addEventListener('change', calc);
 
 calc();
 </script>
