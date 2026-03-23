@@ -391,6 +391,24 @@
     line-height: 1.5;
   }
 
+  /* ─── Buff icons ─── */
+  .buff-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    vertical-align: middle;
+    object-fit: cover;
+  }
+  .card-title .buff-icon {
+    width: 22px;
+    height: 22px;
+  }
+  label .buff-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 2px;
+  }
+
   /* ─── Buff pct reference ─── */
   /* ─── Pet checkboxes ─── */
   .card label input[type="checkbox"] {
@@ -422,19 +440,56 @@
   .ref-table th { color: var(--gold); font-weight: 600; }
   .ref-table td { color: var(--text); }
   .ref-table tr:last-child td { border-bottom: none; }
+
+  /* ─── Language toggle ─── */
+  .lang-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .05em;
+  }
+  .lang-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .lang-toggle button.active {
+    background: rgba(200,155,60,.15);
+    color: var(--gold);
+  }
+  .lang-toggle button:hover:not(.active) {
+    color: var(--text);
+  }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <header>
+  <header style="position:relative">
+    <div class="lang-toggle">
+      <button class="active" onclick="setLang('en')">EN</button>
+      <button onclick="setLang('fr')">FR</button>
+    </div>
     <div class="eyebrow">Castle Clash</div>
-    <h1>ATK Speed Calculator</h1>
-    <p>Compute your hero's operating attack speed after all buffs & talents</p>
+    <h1 data-i18n="title">ATK Speed Calculator</h1>
+    <p data-i18n="subtitle">Compute your hero's operating attack speed after all buffs & talents</p>
+    <p style="color:var(--muted); font-size:12px; margin-top:6px;" data-i18n="credits">Made by Elme — Formula credit: Karma@French🇲🇫Never🇲🇫Die</p>
   </header>
 
   <!-- Formula -->
-  <div class="formula-box">
+  <div class="formula-box" data-i18n-html="formulaBox">
     <strong style="color:var(--text)">Formula</strong> — all buffs are multiplicative divisors:
     <code>OperatingAS = CEILING( BaseAS ÷ [(1 + Talent) × (1 + Insignia) × (1 + Enchant) × …] ÷ 200 ) × 200</code>
     Minimum cap: <strong style="color:var(--amber)">200 ms</strong> &nbsp;·&nbsp;
@@ -445,9 +500,9 @@
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Base Attack Speed
+      <span data-i18n="baseAtkSpeed">Base Attack Speed</span>
     </div>
-    <label>Enter base ATK SPD (ms)</label>
+    <label data-i18n="enterBaseAS">Enter base ATK SPD (ms)</label>
     <input type="number" id="baseAS" min="200" max="5000" step="100" value="1000">
     <div class="presets">
       <span class="chip active" onclick="setBase(1000)">1000 ms</span>
@@ -462,13 +517,15 @@
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      Berserk Talent &amp; Wraith Mark Insignia
+      <img src="img/berserk.jpeg" alt="" class="buff-icon">
+      <img src="img/wraith_mark.png" alt="" class="buff-icon">
+      <span data-i18n="berserkWraithTitle">Berserk Talent &amp; Wraith Mark Insignia</span>
     </div>
     <div class="row row-2">
       <div>
-        <label>Berserk Talent Level</label>
+        <label data-i18n="berserkTalentLevel">Berserk Talent Level</label>
         <select id="berserkTalent" onchange="calc()">
-          <option value="0">None</option>
+          <option value="0" data-i18n="none">None</option>
           <option value="10">1/10 — 10%</option>
           <option value="15">2/10 — 15%</option>
           <option value="20">3/10 — 20%</option>
@@ -482,9 +539,9 @@
         </select>
       </div>
       <div>
-        <label>Wraith Mark Insignia</label>
+        <label data-i18n="wraithMarkInsignia">Wraith Mark Insignia</label>
         <select id="wraithMark" onchange="calc()">
-          <option value="0">None</option>
+          <option value="0" data-i18n="none">None</option>
           <option value="5">1/10 — 5%</option>
           <option value="10">2/10 — 10%</option>
           <option value="15">3/10 — 15%</option>
@@ -500,16 +557,42 @@
     </div>
   </div>
 
+  <!-- Vampiric Grail Talent -->
+  <div class="card">
+    <div class="card-title">
+      <img src="img/vampiric_grail.png" alt="" class="buff-icon">
+      <span data-i18n="vampiricGrailTitle">Vampiric Grail Talent</span>
+    </div>
+    <div>
+      <label data-i18n="vampiricGrailLevel">Vampiric Grail Level</label>
+      <select id="vampiricGrail" onchange="calc()">
+        <option value="0" data-i18n="none">None</option>
+        <option value="4">1/10 — 4%</option>
+        <option value="8">2/10 — 8%</option>
+        <option value="12">3/10 — 12%</option>
+        <option value="16">4/10 — 16%</option>
+        <option value="21">5/10 — 21%</option>
+        <option value="26">6/10 — 26%</option>
+        <option value="32">7/10 — 32%</option>
+        <option value="39">8/10 — 39%</option>
+        <option value="47">9/10 — 47%</option>
+        <option value="55">10/10 — 55%</option>
+      </select>
+    </div>
+    <div class="note" data-i18n="vampiricGrailNote">Stacks independently with Berserk — both apply as separate multiplicative divisors.</div>
+  </div>
+
   <!-- Enchantment — Unbridled Fury -->
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      Enchantment — Unbridled Fury
+      <img src="img/unbridled_fury.png" alt="" class="buff-icon">
+      <span data-i18n="enchantTitle">Enchantment — Unbridled Fury</span>
     </div>
     <div>
-      <label>Enchantment Level</label>
+      <label data-i18n="enchantLevel">Enchantment Level</label>
       <select id="unbridledFury" onchange="calc()">
-        <option value="0">None</option>
+        <option value="0" data-i18n="none">None</option>
         <option value="10">1/10 — 10%</option>
         <option value="14">2/10 — 14%</option>
         <option value="19">3/10 — 19%</option>
@@ -528,47 +611,48 @@
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      Gear Endowment
+      <span data-i18n="gearEndowment">Gear Endowment</span>
     </div>
     <div class="row row-3">
       <div>
-        <label>Helmet (%)</label>
+        <label data-i18n="helmet">Helmet (%)</label>
         <input type="number" id="gearHelmet" min="0" max="8" step="0.1" value="0" oninput="calc()">
       </div>
       <div>
-        <label>Armor (%)</label>
+        <label data-i18n="armor">Armor (%)</label>
         <input type="number" id="gearArmor" min="0" max="8" step="0.1" value="0" oninput="calc()">
       </div>
       <div>
-        <label>Weapons (%)</label>
+        <label data-i18n="weapons">Weapons (%)</label>
         <input type="number" id="gearWeapons" min="0" max="8" step="0.1" value="0" oninput="calc()">
       </div>
       <div>
-        <label>Boots (%)</label>
+        <label data-i18n="boots">Boots (%)</label>
         <input type="number" id="gearBoots" min="0" max="8" step="0.1" value="0" oninput="calc()">
       </div>
       <div>
-        <label>Necklace (%)</label>
+        <label data-i18n="necklace">Necklace (%)</label>
         <input type="number" id="gearNecklace" min="0" max="8" step="0.1" value="0" oninput="calc()">
       </div>
       <div>
-        <label>Ring (%)</label>
+        <label data-i18n="ring">Ring (%)</label>
         <input type="number" id="gearRing" min="0" max="8" step="0.1" value="0" oninput="calc()">
       </div>
     </div>
-    <div class="note">Each gear slot can endow 0–8% ATK SPD (step 0.1%). All gear bonuses are summed into one multiplicative divisor.</div>
+    <div class="note" data-i18n="gearNote">Each gear slot can endow 0–8% ATK SPD (step 0.1%). All gear bonuses are summed into one multiplicative divisor.</div>
   </div>
 
   <!-- Pet Flair -->
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
-      Pet Flair — Pursuit Strike
+      <img src="img/pursuit_strike.png" alt="" class="buff-icon">
+      <span data-i18n="petFlairTitle">Pet Flair — Pursuit Strike</span>
     </div>
     <div>
-      <label>Flair Level</label>
+      <label data-i18n="flairLevel">Flair Level</label>
       <select id="flairLevel" onchange="calc()">
-        <option value="0">None</option>
+        <option value="0" data-i18n="none">None</option>
         <option value="20">1/10 — 20%</option>
         <option value="22">2/10 — 22%</option>
         <option value="24">3/10 — 24%</option>
@@ -587,30 +671,51 @@
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.47-4.113 6.006-4 7 .08.703 1.725 1.722 3.656 1 1.261-.472 1.96-1.45 2.344-2.5M14 5.172C14 3.782 15.577 2.679 17.5 3c2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.96-1.45-2.344-2.5"/><path d="M8 14v.5M16 14v.5"/><path d="M11.25 16.25h1.5L12 17l-.75-.75z"/><path d="M4.42 11.247A13.152 13.152 0 004 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 00-.493-3.309"/></svg>
-      Pets
+      <span data-i18n="petsTitle">Pets</span>
     </div>
     <div class="row row-2">
       <div>
-        <label><input type="checkbox" id="petMermaid" onchange="calc()"> Marine Mermaid <span>(30%)</span></label>
+        <label><input type="checkbox" id="petMermaid" onchange="calc()"> <img src="img/mermaid.png" alt="" class="buff-icon"> <span data-i18n="petMermaid">Marine Mermaid</span> <span>(30%)</span></label>
       </div>
       <div>
-        <label><input type="checkbox" id="petMermaidMutant" onchange="calc()"> Mutant Mermaid <span>(30%)</span></label>
+        <label><input type="checkbox" id="petMermaidMutant" onchange="calc()"> <img src="img/mermaid_mutant.png" alt="" class="buff-icon"> <span data-i18n="petMermaidMutant">Mutant Mermaid</span> <span>(30%)</span></label>
       </div>
       <div>
-        <label><input type="checkbox" id="petDragon" onchange="calc()"> Dragon <span>(25%)</span></label>
+        <label><input type="checkbox" id="petDragon" onchange="calc()"> <img src="img/dragon.png" alt="" class="buff-icon"> <span data-i18n="petDragon">Dragon</span> <span>(25%)</span></label>
       </div>
       <div>
-        <label><input type="checkbox" id="petDragonMutant" onchange="calc()"> Mutant Dragon <span>(25%)</span></label>
+        <label><input type="checkbox" id="petDragonMutant" onchange="calc()"> <img src="img/dragon_mutant.png" alt="" class="buff-icon"> <span data-i18n="petDragonMutant">Mutant Dragon</span> <span>(25%)</span></label>
       </div>
     </div>
-    <div class="note">Each activated pet is an independent multiplicative divisor.</div>
+    <div class="note" data-i18n="petNote">Each activated pet is an independent multiplicative divisor.</div>
+  </div>
+
+  <!-- Keepsake -->
+  <div class="card">
+    <div class="card-title">
+      <img src="img/keepsake.png" alt="" class="buff-icon">
+      <span data-i18n="keepsakeTitle">Keepsake</span>
+    </div>
+    <div>
+      <label data-i18n="keepsakeLevel">Keepsake Level</label>
+      <select id="keepsake" onchange="calc()">
+        <option value="0" data-i18n="none">None</option>
+        <option value="5">1/7 — 5%</option>
+        <option value="7">2/7 — 7%</option>
+        <option value="10">3/7 — 10%</option>
+        <option value="12">4/7 — 12%</option>
+        <option value="14">5/7 — 14%</option>
+        <option value="16">6/7 — 16%</option>
+        <option value="20">7/7 — 20%</option>
+      </select>
+    </div>
   </div>
 
   <!-- Extra buffs -->
   <div class="card">
     <div class="card-title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Additional Buffs — Gear, Pet, Artifact…
+      <span data-i18n="extraBuffsTitle">Additional Buffs — Gear, Pet, Artifact…</span>
     </div>
 
     <!-- Quick-add presets -->
@@ -619,23 +724,23 @@
       <span class="chip" onclick="addBuff('Frenzy Bear Pet', 25)">+ Frenzy Bear Pet</span>
       <span class="chip" onclick="addBuff('Gear Enchant (Berserk lv5)', 30)">+ Gear Enchant Berserk 5</span>
       <span class="chip" onclick="addBuff('Gear Trait ATK SPD', 10)">+ Gear Trait ATK SPD</span>
-      <span class="chip" onclick="addBuff('Custom Buff', 20)">+ Custom buff</span>
+      <span class="chip" onclick="addBuff(t('customBuff'), 20)" data-i18n="addCustomChip">+ Custom buff</span>
     </div>
 
     <div id="buffList" class="buff-list"></div>
-    <button class="btn-add" onclick="addBuff('', 20)">＋ Add buff</button>
-    <div class="note">Each extra buff is applied as a separate multiplicative divisor.</div>
+    <button class="btn-add" onclick="addBuff('', 20)" data-i18n="btnAddBuff">＋ Add buff</button>
+    <div class="note" data-i18n="extraBuffNote">Each extra buff is applied as a separate multiplicative divisor.</div>
   </div>
 
   <!-- Result -->
   <div class="result-card">
-    <div class="result-label">Operating Attack Speed</div>
+    <div class="result-label" data-i18n="resultLabel">Operating Attack Speed</div>
     <div class="result-ms" id="resultMS">1000</div>
-    <div class="result-unit">milliseconds</div>
+    <div class="result-unit" data-i18n="milliseconds">milliseconds</div>
     <div class="result-aps" id="resultAPS">= <strong>1.00</strong> attacks per second</div>
 
     <div class="breakdown" id="breakdown">
-      <div class="breakdown-title">Calculation Breakdown</div>
+      <div class="breakdown-title" data-i18n="breakdownTitle">Calculation Breakdown</div>
       <div id="bdRows"></div>
     </div>
   </div>
@@ -644,10 +749,10 @@
   <div style="margin-top:24px">
     <div class="ref-toggle" onclick="toggleRef()">
       <svg id="refArrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-      Show Berserk % reference table
+      <span data-i18n="showRefTable">Show Berserk % reference table</span>
     </div>
     <table class="ref-table" id="refTable">
-      <thead><tr><th>Talent Level</th><th>ATK SPD buff</th></tr></thead>
+      <thead><tr><th data-i18n="refTalentLevel">Talent Level</th><th data-i18n="refAtkSpdBuff">ATK SPD buff</th></tr></thead>
       <tbody>
         <tr><td>Berserk 1/10</td><td>10%</td></tr>
         <tr><td>Berserk 2/10</td><td>15%</td></tr>
@@ -669,6 +774,164 @@
 // ─── State ───────────────────────────────────────────────────────
 let buffs = []; // [{id, name, pct}]
 let buffCounter = 0;
+let currentLang = 'en';
+
+// ─── Translations ────────────────────────────────────────────────
+const i18n = {
+  en: {
+    title: 'ATK Speed Calculator',
+    subtitle: "Compute your hero's operating attack speed after all buffs & talents",
+    credits: 'Made by Elme — Formula credit: Karma@French🇲🇫Never🇲🇫Die',
+    formulaBox: '<strong style="color:var(--text)">Formula</strong> — all buffs are multiplicative divisors:<code>OperatingAS = CEILING( BaseAS ÷ [(1 + Talent) × (1 + Insignia) × (1 + Enchant) × …] ÷ 200 ) × 200</code>Minimum cap: <strong style="color:var(--amber)">200 ms</strong> &nbsp;·&nbsp;Each buff is an independent <strong style="color:var(--gold-lt)">multiplicative</strong> divisor',
+    baseAtkSpeed: 'Base Attack Speed',
+    enterBaseAS: 'Enter base ATK SPD (ms)',
+    berserkWraithTitle: 'Berserk Talent &amp; Wraith Mark Insignia',
+    berserkTalentLevel: 'Berserk Talent Level',
+    wraithMarkInsignia: 'Wraith Mark Insignia',
+    enchantTitle: 'Enchantment — Unbridled Fury',
+    enchantLevel: 'Enchantment Level',
+    gearEndowment: 'Gear Endowment',
+    helmet: 'Helmet (%)',
+    armor: 'Armor (%)',
+    weapons: 'Weapons (%)',
+    boots: 'Boots (%)',
+    necklace: 'Necklace (%)',
+    ring: 'Ring (%)',
+    gearNote: 'Each gear slot can endow 0–8% ATK SPD (step 0.1%). All gear bonuses are summed into one multiplicative divisor.',
+    petFlairTitle: 'Pet Flair — Pursuit Strike',
+    flairLevel: 'Flair Level',
+    petsTitle: 'Pets',
+    petMermaid: 'Marine Mermaid',
+    petMermaidMutant: 'Mutant Mermaid',
+    petDragon: 'Dragon',
+    petDragonMutant: 'Mutant Dragon',
+    petNote: 'Each activated pet is an independent multiplicative divisor.',
+    extraBuffsTitle: 'Additional Buffs — Gear, Pet, Artifact…',
+    addCustomChip: '+ Custom buff',
+    btnAddBuff: '＋ Add buff',
+    extraBuffNote: 'Each extra buff is applied as a separate multiplicative divisor.',
+    resultLabel: 'Operating Attack Speed',
+    milliseconds: 'milliseconds',
+    breakdownTitle: 'Calculation Breakdown',
+    showRefTable: 'Show Berserk % reference table',
+    refTalentLevel: 'Talent Level',
+    refAtkSpdBuff: 'ATK SPD buff',
+    none: 'None',
+    // Dynamic JS strings
+    customBuff: 'Custom buff',
+    baseAS: 'Base ATK Speed',
+    totalDivisor: 'Total divisor',
+    noBuffs: '× 1.00 (no buffs)',
+    combinedDivisor: 'Combined divisor',
+    rawValue: 'Raw value',
+    roundedCeiling: 'Rounded (ceiling ÷ 200)',
+    apsText: 'attacks per second',
+    berserkTalent: 'Berserk Talent',
+    wraithMark: 'Wraith Mark Insignia',
+    unbridledFury: 'Unbridled Fury',
+    gearEndowmentCalc: 'Gear Endowment',
+    flairPursuitStrike: 'Flair Pursuit Strike',
+    vampiricGrailTitle: 'Vampiric Grail Talent',
+    vampiricGrailLevel: 'Vampiric Grail Level',
+    vampiricGrailNote: 'Stacks independently with Berserk — both apply as separate multiplicative divisors.',
+    vampiricGrail: 'Vampiric Grail',
+    keepsakeTitle: 'Keepsake',
+    keepsakeLevel: 'Keepsake Level',
+    keepsakeCalc: 'Keepsake',
+    buffPlaceholder: 'Buff name (e.g. Blitz Scroll)',
+  },
+  fr: {
+    title: "Calculateur de Vitesse d'ATQ",
+    subtitle: "Calculez la vitesse d'attaque effective de votre héros après tous les buffs et talents",
+    credits: 'Fait par Elme — Crédit formule : Karma@French🇲🇫Never🇲🇫Die',
+    formulaBox: '<strong style="color:var(--text)">Formule</strong> — tous les buffs sont des diviseurs multiplicatifs :<code>VIT ATQ = PLAFOND( VIT Base ÷ [(1 + Talent) × (1 + Insigne) × (1 + Enchant) × …] ÷ 200 ) × 200</code>Cap minimum : <strong style="color:var(--amber)">200 ms</strong> &nbsp;·&nbsp;Chaque buff est un diviseur <strong style="color:var(--gold-lt)">multiplicatif</strong> indépendant',
+    baseAtkSpeed: "Vitesse d'Attaque de Base",
+    enterBaseAS: "Entrez la VIT ATQ de base (ms)",
+    berserkWraithTitle: 'Talent Foufurieux & Insigne Marque Spectrale',
+    berserkTalentLevel: 'Niveau du Talent Fou furieux',
+    wraithMarkInsignia: 'Insigne Marque Spectrale',
+    enchantTitle: 'Enchantement — Furie Débridée',
+    enchantLevel: "Niveau d'Enchantement",
+    gearEndowment: "Ornement d'Équipement",
+    helmet: 'Casque (%)',
+    armor: 'Armure (%)',
+    weapons: 'Armes (%)',
+    boots: 'Bottes (%)',
+    necklace: 'Collier (%)',
+    ring: 'Anneau (%)',
+    gearNote: "Chaque emplacement peut doter de 0 à 8% de VIT ATQ (pas de 0.1%). Tous les bonus d'équipement sont additionnés en un seul diviseur multiplicatif.",
+    petFlairTitle: 'Flair Familier — Frappe Poursuite',
+    flairLevel: 'Niveau du Flair',
+    petsTitle: 'Familiers',
+    petMermaid: 'Sirène Marine',
+    petMermaidMutant: 'Sirène Mutante',
+    petDragon: 'Dragon',
+    petDragonMutant: 'Dragon Mutant',
+    petNote: 'Chaque familier activé est un diviseur multiplicatif indépendant.',
+    extraBuffsTitle: 'Buffs Supplémentaires — Équip., Familier, Artéfact…',
+    addCustomChip: '+ Buff perso.',
+    btnAddBuff: '＋ Ajouter un buff',
+    extraBuffNote: 'Chaque buff est appliqué comme un diviseur multiplicatif séparé.',
+    resultLabel: "Vitesse d'Attaque Effective",
+    milliseconds: 'millisecondes',
+    breakdownTitle: 'Détail du Calcul',
+    showRefTable: 'Afficher la table de référence Berserk %',
+    refTalentLevel: 'Niveau du Talent',
+    refAtkSpdBuff: 'Buff VIT ATQ',
+    none: 'Aucun',
+    // Dynamic JS strings
+    customBuff: 'Buff personnalisé',
+    baseAS: 'VIT ATQ de Base',
+    totalDivisor: 'Diviseur total',
+    noBuffs: '× 1.00 (aucun buff)',
+    combinedDivisor: 'Diviseur combiné',
+    rawValue: 'Valeur brute',
+    roundedCeiling: 'Arrondi (plafond ÷ 200)',
+    apsText: 'attaques par seconde',
+    berserkTalent: 'Talent Berserk',
+    wraithMark: 'Insigne Marque Spectrale',
+    unbridledFury: 'Furie Débridée',
+    gearEndowmentCalc: "Dotation d'Équipement",
+    flairPursuitStrike: 'Flair Frappe Poursuite',
+    vampiricGrailTitle: 'Talent Graal Vampirique',
+    vampiricGrailLevel: 'Niveau du Graal Vampirique',
+    vampiricGrailNote: 'Se cumule indépendamment avec Berserk — les deux s\'appliquent comme diviseurs multiplicatifs séparés.',
+    vampiricGrail: 'Graal Vampirique',
+    keepsakeTitle: 'Souvenir',
+    keepsakeLevel: 'Niveau du Souvenir',
+    keepsakeCalc: 'Souvenir',
+    buffPlaceholder: 'Nom du buff (ex. Parchemin Blitz)',
+  }
+};
+
+function t(key) { return i18n[currentLang][key] || i18n.en[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  // Update toggle buttons
+  document.querySelectorAll('.lang-toggle button').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === lang.toUpperCase());
+  });
+  // Update page title
+  document.title = 'Castle Clash — ' + i18n[lang].title;
+  // Update data-i18n text elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key] !== undefined) el.textContent = i18n[lang][key];
+  });
+  // Update data-i18n-html elements (innerHTML)
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+  });
+  // Re-run calc to update dynamic strings
+  calc();
+  // Update buff placeholders
+  document.querySelectorAll('.buff-row input[type="text"]').forEach(input => {
+    input.placeholder = t('buffPlaceholder');
+  });
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────
 function ceilTo200(x) {
@@ -703,7 +966,7 @@ function renderBuffs() {
   const list = document.getElementById('buffList');
   list.innerHTML = buffs.map(b => `
     <div class="buff-row" id="buffRow-${b.id}">
-      <input type="text" placeholder="Buff name (e.g. Blitz Scroll)" value="${b.name}"
+      <input type="text" placeholder="${t('buffPlaceholder')}" value="${b.name}"
         oninput="updateBuff(${b.id},'name',this.value)">
       <div class="pct-input">
         <input type="number" min="0" max="500" step="1" value="${b.pct}"
@@ -733,21 +996,28 @@ function calc() {
   // 1. Berserk Talent
   if (talPct > 0) {
     divisor *= (1 + talPct / 100);
-    bdParts.push({ label: `Berserk Talent (${talPct}%)`, factor: 1 + talPct / 100, pct: talPct });
+    bdParts.push({ label: `${t('berserkTalent')} (${talPct}%)`, factor: 1 + talPct / 100, pct: talPct });
   }
 
-  // 2. Wraith Mark Insignia
+  // 2. Vampiric Grail Talent
+  const vgPct = getVal('vampiricGrail');
+  if (vgPct > 0) {
+    divisor *= (1 + vgPct / 100);
+    bdParts.push({ label: `${t('vampiricGrail')} (${vgPct}%)`, factor: 1 + vgPct / 100, pct: vgPct });
+  }
+
+  // 3. Wraith Mark Insignia
   const wraithPct = getVal('wraithMark');
   if (wraithPct > 0) {
     divisor *= (1 + wraithPct / 100);
-    bdParts.push({ label: `Wraith Mark Insignia (${wraithPct}%)`, factor: 1 + wraithPct / 100, pct: wraithPct });
+    bdParts.push({ label: `${t('wraithMark')} (${wraithPct}%)`, factor: 1 + wraithPct / 100, pct: wraithPct });
   }
 
   // 3. Unbridled Fury Enchantment
   const furyPct = getVal('unbridledFury');
   if (furyPct > 0) {
     divisor *= (1 + furyPct / 100);
-    bdParts.push({ label: `Unbridled Fury (${furyPct}%)`, factor: 1 + furyPct / 100, pct: furyPct });
+    bdParts.push({ label: `${t('unbridledFury')} (${furyPct}%)`, factor: 1 + furyPct / 100, pct: furyPct });
   }
 
   // 4. Gear Endowment (sum all 6 slots into one divisor)
@@ -755,35 +1025,42 @@ function calc() {
   const gearTotal = gearSlots.reduce((s, id) => s + getVal(id), 0);
   if (gearTotal > 0) {
     divisor *= (1 + gearTotal / 100);
-    bdParts.push({ label: `Gear Endowment (${gearTotal.toFixed(1)}%)`, factor: 1 + gearTotal / 100, pct: gearTotal });
+    bdParts.push({ label: `${t('gearEndowmentCalc')} (${gearTotal.toFixed(1)}%)`, factor: 1 + gearTotal / 100, pct: gearTotal });
   }
 
-  // 4. Pet Flair — Pursuit Strike
+  // 5. Pet Flair — Pursuit Strike
   const flairPct = getVal('flairLevel');
   if (flairPct > 0) {
     divisor *= (1 + flairPct / 100);
-    bdParts.push({ label: `Flair Pursuit Strike (${flairPct}%)`, factor: 1 + flairPct / 100, pct: flairPct });
+    bdParts.push({ label: `${t('flairPursuitStrike')} (${flairPct}%)`, factor: 1 + flairPct / 100, pct: flairPct });
   }
 
-  // 5. Pets
+  // 6. Pets
   const pets = [
-    { id: 'petMermaid',        label: 'Marine Mermaid',        pct: 30 },
-    { id: 'petMermaidMutant',  label: 'Mutant Marine Mermaid', pct: 30 },
-    { id: 'petDragon',        label: 'Dragon',                pct: 25 },
-    { id: 'petDragonMutant',  label: 'Mutant Dragon',         pct: 25 },
+    { id: 'petMermaid',        labelKey: 'petMermaid',        pct: 30 },
+    { id: 'petMermaidMutant',  labelKey: 'petMermaidMutant',  pct: 30 },
+    { id: 'petDragon',        labelKey: 'petDragon',         pct: 25 },
+    { id: 'petDragonMutant',  labelKey: 'petDragonMutant',   pct: 25 },
   ];
   pets.forEach(p => {
     if (document.getElementById(p.id).checked) {
       divisor *= (1 + p.pct / 100);
-      bdParts.push({ label: `${p.label} (${p.pct}%)`, factor: 1 + p.pct / 100, pct: p.pct });
+      bdParts.push({ label: `${t(p.labelKey)} (${p.pct}%)`, factor: 1 + p.pct / 100, pct: p.pct });
     }
   });
 
-  // 7. Extra buffs
+  // 7. Keepsake
+  const keepsakePct = getVal('keepsake');
+  if (keepsakePct > 0) {
+    divisor *= (1 + keepsakePct / 100);
+    bdParts.push({ label: `${t('keepsakeCalc')} (${keepsakePct}%)`, factor: 1 + keepsakePct / 100, pct: keepsakePct });
+  }
+
+  // 8. Extra buffs
   buffs.forEach(b => {
     if (b.pct > 0) {
       divisor *= (1 + b.pct / 100);
-      bdParts.push({ label: b.name || 'Custom buff', factor: 1 + b.pct / 100, pct: b.pct });
+      bdParts.push({ label: b.name || t('customBuff'), factor: 1 + b.pct / 100, pct: b.pct });
     }
   });
 
@@ -795,15 +1072,15 @@ function calc() {
   document.getElementById('resultMS').textContent = result;
   const aps = (1000 / result).toFixed(2);
   document.getElementById('resultAPS').innerHTML =
-    `= <strong>${aps}</strong> attacks per second`;
+    `= <strong>${aps}</strong> ${t('apsText')}`;
 
   // ─── Breakdown ───
   const rows = [];
 
-  rows.push({ label: 'Base ATK Speed', val: `${base} ms`, cls: '' });
+  rows.push({ label: t('baseAS'), val: `${base} ms`, cls: '' });
 
   if (bdParts.length === 0) {
-    rows.push({ label: 'Total divisor', val: '× 1.00 (no buffs)', cls: '' });
+    rows.push({ label: t('totalDivisor'), val: t('noBuffs'), cls: '' });
   } else {
     bdParts.forEach(p => {
       const tag = p.pct !== null ? `+${p.pct}%` : '';
@@ -814,15 +1091,15 @@ function calc() {
       });
     });
     rows.push({
-      label: 'Combined divisor',
+      label: t('combinedDivisor'),
       val: `÷ ${divisor.toFixed(4)}`,
       cls: 'green'
     });
   }
 
-  rows.push({ label: 'Raw value', val: `${raw.toFixed(1)} ms`, cls: '' });
+  rows.push({ label: t('rawValue'), val: `${raw.toFixed(1)} ms`, cls: '' });
   rows.push({
-    label: 'Rounded (ceiling ÷ 200)',
+    label: t('roundedCeiling'),
     val: `${result} ms${capped ? '<span class="cap-badge">MIN CAP</span>' : ''}`,
     cls: 'gold'
   });
